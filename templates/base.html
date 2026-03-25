@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Sis Nutrindo{% endblock %}</title>
+    <title>{% block title %}Nome da Empresa{% endblock %}</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -12,23 +12,40 @@
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             
             <h1 class="text-xl font-bold text-green-600">
-                Sis Nutrindo
+                Nome da Empresa
             </h1>
 
             <nav class="flex items-center gap-4">
+
                 <a href="/" class="text-gray-700 hover:text-green-600 transition">
                     Home
                 </a>
 
-                <a href="/admin/" class="text-gray-700 hover:text-green-600 transition">
-                    Admin
-                </a>
+                <div class="relative">
+                    <button 
+                        id="menuButton"
+                        class="text-gray-700 hover:text-green-600 transition font-medium flex items-center gap-1"
+                    >
+                        Sistema
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    <div 
+                        id="menuDropdown"
+                        class="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg hidden"
+                    >
+                        <a href="{% url 'usuarios:lista_usuarios' %}" class="block px-4 py-2 text-gray-700 hover:bg-green-100">Usuários</a>
+                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-green-100">Relatórios</a>
+                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-green-100">Configurações</a>
+                    </div>
+                </div>                
 
                 {% if request.user.is_authenticated %}
                     <span class="text-sm text-gray-600">
                         Olá, {{ request.user.email }}
                     </span>
-
                     <a href="#" class="text-red-500 hover:underline text-sm">
                         Sair
                     </a>
@@ -42,11 +59,52 @@
         </div>
     </header>
 
-    <!-- 📦 Conteúdo -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 py-4 mt-4">
+        {% for message in messages %}
+        <div 
+            class="flash-message p-4 rounded mb-2 shadow
+                {% if message.tags == 'success' %}bg-green-100 text-green-800{% endif %}
+                {% if message.tags == 'error' %}bg-red-100 text-red-800{% endif %}
+                {% if message.tags == 'warning' %}bg-yellow-100 text-yellow-800{% endif %} "
+        >
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        const flashes = document.querySelectorAll('.flash-message');
+        flashes.forEach(msg => {
+            setTimeout(() => {
+                msg.classList.add('opacity-0', 'transition', 'duration-700');
+                setTimeout(() => msg.remove(), 700);
+            }, 5000);
+        });
+    </script>
+    {% endif %}
+
     <main class="max-w-7xl mx-auto px-4 py-6">
         {% block content %}
         {% endblock %}
     </main>
+
+    {% block scripts_extra %}
+    <script>
+        const menuButton = document.getElementById('menuButton');
+        const menuDropdown = document.getElementById('menuDropdown');
+
+        menuButton.addEventListener('click', () => {
+            menuDropdown.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!menuButton.contains(event.target) && !menuDropdown.contains(event.target)) {
+                menuDropdown.classList.add('hidden');
+            }
+        });
+    </script>
+    {% endblock %}
 
 </body>
 </html>

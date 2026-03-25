@@ -23,6 +23,13 @@ class UsuarioManager(BaseUserManager):
 
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
+    ROLE_CHOICES = (
+        ('admin', 'Administrador'),
+        ('gerente', 'Gerente'),
+        ('funcionario', 'Funcionário'),
+    )
+     
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='funcionario')
     email = models.EmailField(unique=True)
     nome = models.CharField(max_length=255, blank=True)
 
