@@ -15,7 +15,7 @@ def cad_usuario(request):
         Usuario.objects.create_user(**usuario_data)
 
         messages.success(request, f"Usuário: {usuario_data['email']} cadastrado com sucesso!")
-        return redirect('lista_usuarios')
+        return redirect('usuarios:lista_usuarios')
 
     return render(request, 'usuarios/cad_usuario.html')
 
@@ -43,7 +43,7 @@ def editar_usuario(request, id):
         usuario.save()
 
         messages.success(request, f"Usuário {usuario.email} atualizado com sucesso!")
-        return redirect('lista_usuarios')
+        return redirect('usuarios:lista_usuarios')
 
     return render(request, 'usuarios/cad_usuario.html', {'usuario': usuario})
 
@@ -52,4 +52,4 @@ def excluir_usuario(request, id):
     usuario = get_object_or_404(Usuario, id=id)
     usuario.delete()
     messages.success(request, f"Usuário {usuario.email} excluído com sucesso!")
-    return redirect('lista_usuarios')
+    return redirect('usuarios:lista_usuarios')

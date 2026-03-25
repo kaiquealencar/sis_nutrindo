@@ -5,7 +5,7 @@ app_name = 'usuarios'
 
 urlpatterns = [
     path('', lista_usuarios, name='lista_usuarios'),
-    path('cadastro-usuario/', cad_usuario, name='cad_usuario'),
+    path('cadastrar-usuario/', cad_usuario, name='cadastrar_usuario'),
     path('editar-usuario/<int:id>/', editar_usuario, name='editar_usuario'),
     path('excluir-usuario/<int:id>/', excluir_usuario, name='excluir_usuario'),
 ]
