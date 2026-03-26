@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Lista de Empresas Cadastradas{% endblock %}
+
+{% block content %}
+<a href="{% url 'empresa:cadastrar_empresa' %}" class="inline-block mb-4 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow-md transition duration-300">
+    Cadastrar Nova Empresa
+</a>
+
+<div class="max-w-7xl mx-auto mt-10">
+    <h1 class="text-2xl font-bold text-green-600 mb-6">Empresas Cadastradas</h1>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white rounded-lg shadow overflow-hidden">
+            <thead class="bg-green-600 text-white">
+                <tr>
+                    <th class="py-3 px-4 text-left">Nome Fantasia</th>
+                    <th class="py-3 px-4 text-left">CNPJ</th>
+                    <th class="py-3 px-4 text-left">Regime Tributário</th>
+                    <th class="py-3 px-4 text-center">Status</th>
+                    <th class="py-3 px-4 text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for empresa in empresas %}
+                <tr class="hover:bg-gray-50">
+                    <td class="py-3 px-4">{{ empresa.nome_fantasia|default:"-" }}</td>
+                    <td class="py-3 px-4">{{ empresa.cnpj }}</td>
+                    <td class="py-3 px-4">{{ empresa.get_regime_tributario_display }}</td>
+                    <td class="py-3 px-4 text-center">
+                        {% if empresa.ativo %}
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">Ativo</span>
+                        {% else %}
+                        <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-semibold">Inativo</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 text-center space-x-2">
+                        <a href="{% url 'empresa:editar_empresa' empresa.id %}" 
+                           class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition">
+                            Editar
+                        </a>
+
+                        <a href="{% url 'empresa:excluir_empresa' empresa.id %}" 
+                           class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition">
+                            Excluir
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="py-4 px-4 text-center text-gray-500">
+                        Nenhuma empresa cadastrada.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
