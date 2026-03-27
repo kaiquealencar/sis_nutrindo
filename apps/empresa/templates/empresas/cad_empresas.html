@@ -223,8 +223,8 @@
             <div class="mt-2">
                 {% if empresa and empresa.logo %}
                     <img id="logoPreview"
-                         src="{{ empresa.logo.url }}"
-                         class="max-h-32 rounded border shadow-sm">
+                         src="{{ empresa.logo.url|default:''}}"
+                         class="max-h-32 rounded border shadow-sm" {% if not empresa.logo%} hidden{% endif %}>
                 {% else %}
                     <img id="logoPreview" src="" class="max-h-32 rounded border shadow-sm hidden">
                 {% endif %}
