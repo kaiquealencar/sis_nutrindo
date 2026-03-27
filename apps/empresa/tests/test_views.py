@@ -28,7 +28,7 @@ def test_listar_empresas(client):
         telefone="(11) 1234-5678",
         email="example@example.com.br"
     )
-    response = client.get(reverse('listar_empresas'))
+    response = client.get(reverse('empresa:listar_empresas'))
     assert response.status_code == 200
     assert len(response.context['empresas']) == 1
 
@@ -55,7 +55,7 @@ def test_cadastrar_empresa(client):
         'telefone': '(11) 1234-5678',
         'email': 'example@example.com.br'
     }
-    response = client.post(reverse('cadastrar_empresa'), data=data)
+    response = client.post(reverse('empresa:cadastrar_empresa'), data=data)
     assert response.status_code == 302
     assert Empresa.objects.count() == 1
 
@@ -106,7 +106,7 @@ def test_editar_empresa(client):
         'email': 'example@example.com.br'
     }
 
-    response = client.post(reverse('editar_empresa', kwargs={'pk': empresa.pk}), data=data)
+    response = client.post(reverse('empresa:editar_empresa', kwargs={'id': empresa.id}), data=data)
     assert response.status_code == 302
     empresa.refresh_from_db()
     assert empresa.razao_social == "Empresa Editada LTDA"  
@@ -138,7 +138,7 @@ def test_excluir_empresa(client):
         telefone="(11) 1234-5678",
         email="example@example.com.br"
     )
-    response = client.post(reverse('excluir_empresa', kwargs={'pk': empresa.pk}))
+    response = client.post(reverse('empresa:excluir_empresa', kwargs={'id': empresa.id}))
     assert response.status_code == 302
     assert Empresa.objects.count() == 0
     

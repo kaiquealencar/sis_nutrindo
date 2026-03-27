@@ -3,6 +3,76 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from .models import Empresa
 
+def listar_empresas(request):
+    empresas = Empresa.objects.all().order_by('-criado_em')
+    return render(request, 'empresas/listar_empresas.html', {'empresas': empresas})
+
+
+def cadastrar_empresa(request):
+    if request.method == 'POST':
+        try:
+            dados = _dados_formulário(request)
+            empresa = Empresa(**dados)              
+
+            empresa.full_clean()
+            empresa.save()
+
+            messages.success(request, "Empresa cadastrada com sucesso!")
+            return redirect('empresa:listar_empresas')
+
+        except ValidationError as e:
+            context = _base_context(
+                data=request.POST,
+                errors=e.message_dict,
+            )
+            return render(request, 'empresas/cad_empresas.html', context)
+
+        except Exception as e:
+            messages.error(request, f"Erro inesperado: {str(e)}")
+            context = _base_context(data=request.POST)
+            return render(request, 'empresas/cad_empresas.html', context)
+
+    return render(request, 'empresas/cad_empresas.html', _base_context())
+
+
+def editar_empresa(request, id):
+    empresa = get_object_or_404(Empresa, id=id)
+
+    if request.method == 'POST':
+        try:
+            dados = _dados_formulário(request)
+            for key, value in dados.items():
+                setattr(empresa, key, value)
+
+            empresa.full_clean()
+            empresa.save()
+
+            messages.success(request, "Empresa atualizada com sucesso!")
+            return redirect('empresa:listar_empresas')
+
+        except ValidationError as e:
+            context = _base_context(
+                empresa=empresa,
+                data=request.POST,
+                errors=e.message_dict,
+            )
+            return render(request, 'empresas/cad_empresas.html', context)
+
+        except Exception as e:
+            messages.error(request, f"Erro inesperado: {str(e)}")
+            context = _base_context(empresa=empresa, data=request.POST)
+            return render(request, 'empresas/cad_empresas.html', context)
+
+    context = _base_context(empresa=empresa, data=_data_de_empresa(empresa))
+    return render(request, 'empresas/cad_empresas.html', context)
+
+
+def excluir_empresa(request, id):
+    empresa = get_object_or_404(Empresa, id=id)
+    empresa.delete()
+    messages.success(request, "Empresa excluída com sucesso!")
+    return redirect('empresa:listar_empresas')
+
 
 def _data_vazio():
     return {
@@ -29,7 +99,6 @@ def _data_vazio():
         'ativo': 'on',
         'matriz': '',
     }
-
 
 def _data_de_empresa(empresa):
     return {
@@ -70,128 +139,32 @@ def _base_context(empresa=None, data=None, errors=None):
     }
 
 
-def listar_empresas(request):
-    empresas = Empresa.objects.all().order_by('-criado_em')
-    return render(request, 'empresas/listar_empresas.html', {'empresas': empresas})
+def _dados_formulário(request):
+    return {
+        'razao_social': request.POST.get('razao_social'),
+        'nome_fantasia': request.POST.get('nome_fantasia'),
+        'cnpj': request.POST.get('cnpj'),
+        'inscricao_estadual': request.POST.get('inscricao_estadual'),
+        'inscricao_municipal': request.POST.get('inscricao_municipal'),
+        'cnae_principal': request.POST.get('cnae_principal'),
+        'logradouro': request.POST.get('logradouro'),
+        'numero': request.POST.get('numero'),
+        'bairro': request.POST.get('bairro'),
+        'cidade': request.POST.get('cidade'),
+        'complemento': request.POST.get('complemento'),
+        'estado': request.POST.get('estado'),
+        'cep': request.POST.get('cep'),
+        'pais': request.POST.get('pais', 'Brasil'),
+        'email': request.POST.get('email'),
+        'telefone': request.POST.get('telefone'),
+        'regime_tributario': request.POST.get('regime_tributario'),
+        'tipo_empresa': request.POST.get('tipo_empresa'),
+        'moeda_padrao': request.POST.get('moeda_padrao'),
+        'senha_certificado': request.POST.get('senha_certificado'),
+        'ativo': request.POST.get('ativo') == 'on',
+        'logo': request.FILES['logo'] if request.FILES.get('logo') else None,
+        'certificado_digital': request.FILES['certificado_digital'] if request.FILES.get('certificado_digital') else None,
+        'matriz_id': int(request.POST.get('matriz')) if request.POST.get('matriz') else None
+    }
 
 
-def cadastrar_empresa(request):
-    if request.method == 'POST':
-        try:
-            empresa = Empresa(
-                razao_social=request.POST.get('razao_social'),
-                nome_fantasia=request.POST.get('nome_fantasia'),
-                cnpj=request.POST.get('cnpj'),
-                inscricao_estadual=request.POST.get('inscricao_estadual'),
-                inscricao_municipal=request.POST.get('inscricao_municipal'),
-                cnae_principal=request.POST.get('cnae_principal'),
-                logradouro=request.POST.get('logradouro'),
-                numero=request.POST.get('numero'),
-                bairro=request.POST.get('bairro'),
-                cidade=request.POST.get('cidade'),
-                complemento=request.POST.get('complemento'),
-                estado=request.POST.get('estado'),
-                cep=request.POST.get('cep'),
-                pais=request.POST.get('pais', 'Brasil'),
-                email=request.POST.get('email'),
-                telefone=request.POST.get('telefone'),
-                regime_tributario=request.POST.get('regime_tributario'),
-                tipo_empresa=request.POST.get('tipo_empresa'),
-                moeda_padrao=request.POST.get('moeda_padrao'),
-                senha_certificado=request.POST.get('senha_certificado'),
-                ativo=request.POST.get('ativo') == 'on',
-            )
-
-            if request.FILES.get('logo'):
-                empresa.logo = request.FILES['logo']
-            if request.FILES.get('certificado_digital'):
-                empresa.certificado_digital = request.FILES['certificado_digital']
-
-            matriz_id = request.POST.get('matriz')
-            if matriz_id:
-                empresa.matriz_id = matriz_id
-
-            empresa.full_clean()
-            empresa.save()
-
-            messages.success(request, "Empresa cadastrada com sucesso!")
-            return redirect('empresa:listar_empresas')
-
-        except ValidationError as e:
-            context = _base_context(
-                data=request.POST,
-                errors=e.message_dict,
-            )
-            return render(request, 'empresas/cad_empresas.html', context)
-
-        except Exception as e:
-            messages.error(request, f"Erro inesperado: {str(e)}")
-            context = _base_context(data=request.POST)
-            return render(request, 'empresas/cad_empresas.html', context)
-
-    return render(request, 'empresas/cad_empresas.html', _base_context())
-
-
-def editar_empresa(request, id):
-    empresa = get_object_or_404(Empresa, id=id)
-
-    if request.method == 'POST':
-        try:
-            empresa.razao_social = request.POST.get('razao_social')
-            empresa.nome_fantasia = request.POST.get('nome_fantasia')
-            empresa.cnpj = request.POST.get('cnpj')
-            empresa.inscricao_estadual = request.POST.get('inscricao_estadual')
-            empresa.inscricao_municipal = request.POST.get('inscricao_municipal')
-            empresa.cnae_principal = request.POST.get('cnae_principal')
-            empresa.logradouro = request.POST.get('logradouro')
-            empresa.numero = request.POST.get('numero')
-            empresa.bairro = request.POST.get('bairro')
-            empresa.cidade = request.POST.get('cidade')
-            empresa.complemento = request.POST.get('complemento')
-            empresa.estado = request.POST.get('estado')
-            empresa.cep = request.POST.get('cep')
-            empresa.pais = request.POST.get('pais', 'Brasil')
-            empresa.email = request.POST.get('email')
-            empresa.telefone = request.POST.get('telefone')
-            empresa.regime_tributario = request.POST.get('regime_tributario')
-            empresa.tipo_empresa = request.POST.get('tipo_empresa')
-            empresa.moeda_padrao = request.POST.get('moeda_padrao')
-            empresa.senha_certificado = request.POST.get('senha_certificado')
-            empresa.ativo = request.POST.get('ativo') == 'on'
-
-            if request.FILES.get('logo'):
-                empresa.logo = request.FILES['logo']
-            if request.FILES.get('certificado_digital'):
-                empresa.certificado_digital = request.FILES['certificado_digital']
-
-            matriz_id = request.POST.get('matriz')
-            empresa.matriz_id = matriz_id if matriz_id else None
-
-            empresa.full_clean()
-            empresa.save()
-
-            messages.success(request, "Empresa atualizada com sucesso!")
-            return redirect('empresa:listar_empresas')
-
-        except ValidationError as e:
-            context = _base_context(
-                empresa=empresa,
-                data=request.POST,
-                errors=e.message_dict,
-            )
-            return render(request, 'empresas/cad_empresas.html', context)
-
-        except Exception as e:
-            messages.error(request, f"Erro inesperado: {str(e)}")
-            context = _base_context(empresa=empresa, data=request.POST)
-            return render(request, 'empresas/cad_empresas.html', context)
-
-    context = _base_context(empresa=empresa, data=_data_de_empresa(empresa))
-    return render(request, 'empresas/cad_empresas.html', context)
-
-
-def excluir_empresa(request, id):
-    empresa = get_object_or_404(Empresa, id=id)
-    empresa.delete()
-    messages.success(request, "Empresa excluída com sucesso!")
-    return redirect('empresa:listar_empresas')
