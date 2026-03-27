@@ -4,7 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{{ empresa.nome_fantasia|default:"I/O Solution" }}{% endblock %}</title>
+    <title>
+    {% block title %}
+        {% if empresa.nome_fantasia %}
+            {{ empresa.nome_fantasia }} | IO Solution ERP
+        {% else %}
+            {{ GLOBAL_SYSTEM_NAME }}
+        {% endif %}
+    {% endblock %}
+</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .dropdown-menu { z-index: 9999 !important; }
@@ -15,9 +23,9 @@
     <header class="bg-white shadow-md relative">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             
-            <h1 class="text-xl font-bold text-green-600">
-                <a href="/">{{ empresa.nome_fantasia|default:"I/O Solution" }}</a>
-            </h1>
+          <h1 class="text-xl font-bold text-green-600">
+            <a href="/">{{ empresa.nome_fantasia|default:GLOBAL_SYSTEM_NAME }}</a>
+          </h1>
 
             <nav class="flex items-center gap-6">
                 <a href="/" class="text-gray-700 hover:text-green-600 transition font-medium">
@@ -73,7 +81,7 @@
     </main>
 
     <footer class="bg-white border-t py-4 text-center text-gray-400 text-xs mt-auto">
-        &copy; {% now "Y" %} {{ empresa.nome_fantasia|default:"I/O Solution" }} - Gestão de Refeições
+        &copy; {% now "Y" %} {{ empresa.nome_fantasia|default:GLOBAL_SYSTEM_NAME }} - Todos os direitos reservados.
     </footer>
 
     {% block scripts_extra %}

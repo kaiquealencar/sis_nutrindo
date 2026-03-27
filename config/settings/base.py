@@ -131,3 +131,5 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+GLOBAL_SYSTEM_NAME = "I/O Solution ERP"
