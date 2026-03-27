@@ -39,9 +39,9 @@
                            class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition">
                             Editar
                         </a>
-
-                        <a href="{% url 'empresa:excluir_empresa' empresa.id %}" 
-                           class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition">
+                        <a href="#" 
+                            onclick="confirmarExclusao(event, '{% url 'empresa:excluir_empresa' empresa.id %}')" 
+                            class="bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-sm transition duration-150 inline-block">
                             Excluir
                         </a>
                     </td>
